@@ -3,16 +3,14 @@ defmodule MixAdr do
   Documentation for `MixAdr`.
   """
 
+  alias MixAdr.{Config, Files}
+
   @doc """
-  Hello world.
-
-  ## Examples
-
-      iex> MixAdr.hello()
-      :world
-
+  Creates the ADR directory and writes an initial ADR.
   """
-  def hello do
-    :world
+  def init(%Config{adr_dir: adr_dir} = config) do
+    File.mkdir_p!(adr_dir)
+
+    Files.create("adopt adrs", "", config)
   end
 end

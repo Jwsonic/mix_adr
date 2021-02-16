@@ -1,4 +1,4 @@
-defmodule MixAdrTest do
+defmodule ConfigTest do
   use ExUnit.Case, async: false
   doctest MixAdr
 
