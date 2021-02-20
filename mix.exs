@@ -26,6 +26,7 @@ defmodule MixAdr.MixProject do
   # Run "mix help deps" to learn about dependencies.
   defp deps do
     [
+      {:nimble_options, "~> 0.3.0"},
       {:credo, "~> 1.5", only: [:dev, :test], runtime: false},
       {:mix_test_watch, "~> 1.0", only: :dev, runtime: false}
     ]
