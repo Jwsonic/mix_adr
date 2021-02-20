@@ -73,12 +73,11 @@ defmodule FilesTest do
 
     # Returns the largest numbered file from the ADR dir
     defp largest_file! do
-      largest_file =
-        @adr_dir
-        |> File.ls!()
-        |> Enum.sort()
-        |> Enum.reverse()
-        |> List.first()
+      @adr_dir
+      |> File.ls!()
+      |> Enum.sort()
+      |> Enum.reverse()
+      |> List.first()
     end
 
     defp touch!(file_name) do
