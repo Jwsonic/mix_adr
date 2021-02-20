@@ -26,10 +26,13 @@ defmodule MixAdr.Config do
   will then fall back to default values.
   """
 
-  @spec load!() :: {:ok, t()} | {:error, String.t()}
+  @spec load!() :: t()
   def load! do
+    allowed_keys = Keyword.keys(@schema)
+
     :mix_adr
     |> Application.get_all_env()
+    |> Enum.filter(fn {key, _value} -> Enum.member?(allowed_keys, key) end)
     |> NimbleOptions.validate!(@schema)
   end
 end

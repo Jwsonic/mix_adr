@@ -8,18 +8,19 @@ defmodule ConfigTest do
     setup do
       # Clean out application configs between tests
       on_exit(fn ->
-        Enum.each([:dir, :template_file], fn key ->
-          :ok = Application.delete_env(:mix_adr, key)
-        end)
+        :mix_adr
+        |> Application.get_all_env()
+        |> Keyword.keys()
+        |> Enum.each(&Application.delete_env(:mix_adr, &1))
       end)
     end
 
     test "it loads the correct Config from the applciation config" do
-      assert Config.load!() ==
+      assert Config.load!() |> Enum.sort() ==
                [
+                 dir: "docs/adr",
                  template_file:
-                   "/storage/workspace/mix_adr/_build/test/lib/mix_adr/priv/templates/simple.eex",
-                 dir: "docs/adr"
+                   "/storage/workspace/mix_adr/_build/test/lib/mix_adr/priv/templates/simple.eex"
                ]
     end
 
@@ -30,7 +31,7 @@ defmodule ConfigTest do
       :ok = Application.put_env(:mix_adr, :dir, dir)
       :ok = Application.put_env(:mix_adr, :template_file, template_file)
 
-      assert Config.load!() ==
+      assert Config.load!() |> Enum.sort() ==
                [dir: dir, template_file: template_file]
     end
 
@@ -54,6 +55,17 @@ defmodule ConfigTest do
       assert_raise NimbleOptions.ValidationError,
                    "expected :dir to be a string, got: :bad_atom",
                    &Config.load!/0
+    end
+
+    test "it ignores unecessary keys" do
+      :ok = Application.put_env(:mix_adr, :fake_key, 1234)
+
+      assert Config.load!() |> Enum.sort() ==
+               [
+                 dir: "docs/adr",
+                 template_file:
+                   "/storage/workspace/mix_adr/_build/test/lib/mix_adr/priv/templates/simple.eex"
+               ]
     end
   end
 end
