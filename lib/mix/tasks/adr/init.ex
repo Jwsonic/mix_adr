@@ -6,6 +6,6 @@ defmodule Mix.Tasks.Adr.Init do
 
   @doc false
   def run(_argv) do
-    :ok
+    MixAdr.Config.load!() |> MixAdr.init!()
   end
 end

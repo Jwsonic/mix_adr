@@ -1,43 +1,46 @@
 defmodule MixAdr.Files do
   @moduledoc """
-  Module for dealing with ADR files directly.
+  Module for manipulating ADR files on disk.
   """
 
-  alias MixAdr.Config
-
-  @spec init() :: :ok | {:error, String.t()}
-  def init do
-    :ok
-  end
+  alias MixAdr.{Config, Template}
 
   @doc """
-  Creates a new ADR file with a name like "\#{id}_\#{slug}.md". Where id is a generated integer.
+  Creates a new ADR file with a name like "\#{id}_\#{slug}.md". Where id is a generated integer. Supported arguments:\n#{
+    NimbleOptions.docs(Template.schema())
+  }"
   """
-  @spec create(title :: String.t(), content :: String.t(), config :: Config.t()) ::
-          :ok | {:error, String.t()}
-  def create(title, content, %Config{} = config)
-      when is_bitstring(title) and is_bitstring(content) do
-    with {:ok, file_path} <- build_file_path(title, config) do
-      File.write(file_path, content)
-    end
-  end
-
-  defp build_file_path(title, %Config{adr_dir: adr_dir} = config) do
-    with {:ok, id} <- next_id(config) do
-      slug = Macro.underscore(title)
-
-      {:ok, Path.join(adr_dir, "#{id}_#{slug}.md")}
-    end
+  @spec create!(args :: list(), config :: Config.t()) :: :ok
+  def create!(args, config) do
+    args
+    |> add_id!(config)
+    |> build_content!()
+    |> write_file!(config)
   end
 
   @regex_id ~r/^(\d+)_.+\.md$/
 
-  defp next_id(%Config{adr_dir: adr_dir}) do
-    with {:ok, files} <- File.ls(adr_dir) do
-      id = max_id(files) + 1
+  defp add_id!(args, config) do
+    adr_dir = Config.adr_dir!(config)
+    id = adr_dir |> File.ls!() |> max_id() |> Kernel.+(1)
 
-      {:ok, String.pad_leading("#{id}", 4, "0")}
-    end
+    Keyword.put(args, :id, id)
+  end
+
+  defp build_content!(args) do
+    content = Template.eval!(args)
+
+    Keyword.put(args, :content, content)
+  end
+
+  defp write_file!(args, config) do
+    adr_dir = Config.adr_dir!(config)
+    id = args |> Keyword.fetch!(:id) |> to_string() |> String.pad_leading(4, "0")
+    slug = args |> Keyword.fetch!(:title) |> String.downcase() |> Macro.underscore()
+    file_path = Path.join(adr_dir, "#{id}_#{slug}.md")
+    content = Keyword.fetch!(args, :content)
+
+    File.write!(file_path, content)
   end
 
   defp max_id(files), do: max_id(files, 0)

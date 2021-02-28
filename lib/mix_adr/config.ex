@@ -3,8 +3,6 @@ defmodule MixAdr.Config do
   Configuration struct and loading logic for mix_adr configuration.
   """
 
-  defstruct adr_dir: nil, template_file: nil
-
   @schema [
     dir: [
       type: :string,
@@ -34,5 +32,10 @@ defmodule MixAdr.Config do
     |> Application.get_all_env()
     |> Enum.filter(fn {key, _value} -> Enum.member?(allowed_keys, key) end)
     |> NimbleOptions.validate!(@schema)
+  end
+
+  @spec adr_dir!(config :: t()) :: String.t()
+  def adr_dir!(config) when is_list(config) do
+    Keyword.fetch!(config, :dir)
   end
 end
