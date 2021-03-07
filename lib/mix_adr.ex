@@ -21,7 +21,7 @@ defmodule MixAdr do
   @doc """
   Creates the ADR directory and writes an initial ADR.
   """
-  @spec init!(Config.t()) :: :ok
+  @spec init!(config :: Config.t()) :: :ok
   def init!(config) do
     adr_dir = Config.adr_dir!(config)
 
@@ -32,5 +32,10 @@ defmodule MixAdr do
     File.mkdir_p!(adr_dir)
 
     Files.create!(@args_init, config)
+  end
+
+  @spec new!(config :: Config.t()) :: :ok
+  def new!(config) do
+    :ok
   end
 end
