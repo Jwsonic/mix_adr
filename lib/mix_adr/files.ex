@@ -36,7 +36,7 @@ defmodule MixAdr.Files do
   defp write_file!(args, config) do
     adr_dir = Config.adr_dir!(config)
     id = args |> Keyword.fetch!(:id) |> to_string() |> String.pad_leading(4, "0")
-    slug = args |> Keyword.fetch!(:title) |> String.downcase() |> Macro.underscore()
+    slug = args |> Keyword.fetch!(:title) |> String.downcase() |> String.replace(" ", "_")
     file_path = Path.join(adr_dir, "#{id}_#{slug}.md")
     content = Keyword.fetch!(args, :content)
 
