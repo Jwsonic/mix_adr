@@ -4,7 +4,7 @@ defmodule ConfigTest do
 
   alias MixAdr.Config
 
-  describe "Config.load/0" do
+  describe "Config.load!/0" do
     setup do
       # Clean out application configs between tests
       on_exit(fn ->
@@ -66,6 +66,51 @@ defmodule ConfigTest do
                  template_file:
                    "/storage/workspace/mix_adr/_build/test/lib/mix_adr/priv/templates/simple.eex"
                ]
+    end
+  end
+
+  describe "Config.new!/0" do
+    test "it creates a new config when given proper params" do
+      template_file =
+        :mix_adr
+        |> :code.priv_dir()
+        |> Path.join("templates/simple.eex")
+
+      assert Keyword.equal?(
+               [
+                 {:template_file, template_file},
+                 {:dir, "docs/adr"}
+               ],
+               Config.new!()
+             )
+
+      assert Keyword.equal?(
+               [
+                 {:template_file, template_file},
+                 {:dir, "test/dir"}
+               ],
+               Config.new!(dir: "test/dir")
+             )
+
+      assert Keyword.equal?(
+               [
+                 {:template_file, "test_file.eex"},
+                 {:dir, "docs/adr"}
+               ],
+               Config.new!(template_file: "test_file.eex")
+             )
+
+      assert Keyword.equal?(
+               [
+                 {:template_file, "test_file.eex"},
+                 {:dir, "test/dir"}
+               ],
+               Config.new!(dir: "test/dir", template_file: "test_file.eex")
+             )
+    end
+
+    test "it fails when given incorrect params" do
+      assert_raise(NimbleOptions.ValidationError, fn -> Config.new!(dir: 1) end)
     end
   end
 end
