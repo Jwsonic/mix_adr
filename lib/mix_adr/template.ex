@@ -2,8 +2,6 @@ defmodule MixAdr.Template do
   @moduledoc """
   The Template module contans functions for the building and validations of ADRs based off of a template file.
   """
-  @template "priv/templates/simple.eex"
-  @external_resource @template
 
   @schema_args [
     consequences: [
@@ -47,12 +45,12 @@ defmodule MixAdr.Template do
   @doc "Creates ADR file contents based on the given arguments. Supported arguments:\n#{
          NimbleOptions.docs(@schema_args)
        }"
-  @spec eval!(args :: list()) :: String.t()
-  def eval!(args) when is_list(args) do
+  @spec eval!(args :: list(), config :: Config.t()) :: String.t()
+  def eval!(args, config) when is_list(args) do
     args
     |> validate!()
     |> add_date()
-    |> eval()
+    |> eval(config)
   end
 
   defp validate!(args) do
@@ -65,7 +63,9 @@ defmodule MixAdr.Template do
     Keyword.put(args, :date, date)
   end
 
-  defp eval(args) do
-    EEx.eval_file(@template, args)
+  defp eval(args, config) do
+    config
+    |> Config.template!()
+    |> EEx.eval_file(args)
   end
 end

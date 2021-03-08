@@ -11,10 +11,10 @@ defmodule MixAdr.Files do
   }"
   """
   @spec create!(args :: list(), config :: Config.t()) :: :ok
-  def create!(args, config) do
+  def create!(args, config) when is_list(args) do
     args
     |> add_id!(config)
-    |> build_content!()
+    |> build_content!(config)
     |> write_file!(config)
   end
 
@@ -27,8 +27,8 @@ defmodule MixAdr.Files do
     Keyword.put(args, :id, id)
   end
 
-  defp build_content!(args) do
-    content = Template.eval!(args)
+  defp build_content!(args, config) do
+    content = Template.eval!(args, config)
 
     Keyword.put(args, :content, content)
   end

@@ -3,6 +3,13 @@ defmodule MixAdr.Config do
   Configuration struct and loading logic for mix_adr configuration.
   """
 
+  @opaque t() :: keyword()
+
+  @spec new!(args :: keyword()) :: t()
+  def new!(args \\ []) when is_list(args) do
+    validate!(args)
+  end
+
   @schema [
     dir: [
       type: :string,
@@ -17,19 +24,12 @@ defmodule MixAdr.Config do
     ]
   ]
 
-  @opaque t() :: keyword()
+  @allowed_keys Keyword.keys(@schema)
 
-  @spec new!(args :: keyword()) :: t()
-  def new!(args \\ []) when is_list(args) do
+  defp validate!(args) do
     args
-    |> filter_allowed(@schema)
+    |> Keyword.take(@allowed_keys)
     |> NimbleOptions.validate!(@schema)
-  end
-
-  defp filter_allowed(args, @schema) do
-    allowed_keys = Keyword.keys(@schema)
-
-    Enum.filter(args, fn {key, _value} -> Enum.member?(allowed_keys, key) end)
   end
 
   @doc """
@@ -40,11 +40,16 @@ defmodule MixAdr.Config do
   def load! do
     :mix_adr
     |> Application.get_all_env()
-    |> new!()
+    |> validate!()
   end
 
   @spec adr_dir!(config :: t()) :: String.t()
   def adr_dir!(config) when is_list(config) do
-    Keyword.fetch!(config, :dir)
+    config |> validate!() |> Keyword.fetch!(:dir)
+  end
+
+  @spec template!(config :: t()) :: String.t()
+  def template!(config) when is_list(config) do
+    config |> validate!() |> Keyword.fetch!(:template)
   end
 end

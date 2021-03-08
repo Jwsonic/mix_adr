@@ -63,20 +63,20 @@ defmodule FilesTest do
       1..1000
       |> Enum.random()
     end
+  end
 
-    # Returns the largest numbered file from the ADR dir
-    defp largest_file! do
-      @adr_dir
-      |> File.ls!()
-      |> Enum.sort()
-      |> Enum.reverse()
-      |> List.first()
-    end
+  # Returns the largest numbered file from the ADR dir
+  defp largest_file! do
+    @adr_dir
+    |> File.ls!()
+    |> Enum.sort()
+    |> Enum.reverse()
+    |> List.first()
+  end
 
-    defp touch!(file_name) do
-      @adr_dir
-      |> Path.join(file_name)
-      |> File.touch!()
-    end
+  defp touch!(file_name) do
+    @adr_dir
+    |> Path.join(file_name)
+    |> File.touch!()
   end
 end
